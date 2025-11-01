@@ -1,55 +1,24 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leitor de Editais IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
-      {
-        "imports": {
-          "react/": "https://aistudiocdn.com/react@^19.2.0/",
-          "react": "https://aistudiocdn.com/react@^19.2.0",
-          "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-          "@google/genai": "https://aistudiocdn.com/@google/genai@^1.28.0"
-        }
+    {
+      "imports": {
+        "react": "https://aistudiocdn.com/react@^19.2.0",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+        "react/": "https://aistudiocdn.com/react@^19.2.0/",
+        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.28.0"
       }
+    }
     </script>
-    <style>
-      @media print {
-        /* 1. Oculta todos os elementos que não devem ser impressos. */
-        .no-print {
-          display: none !important;
-        }
-
-        /* 2. Reseta o layout da página para impressão. */
-        body {
-          padding: 0;
-          margin: 0;
-          background: white !important;
-        }
-
-        /* 3. Remove o layout de grid do container principal, fazendo com que seus filhos se empilhem. */
-        .printable-container {
-          display: block !important;
-          padding: 0 !important;
-          margin: 0 !important;
-        }
-
-        /* 4. Garante que a área do resumo tenha um estilo limpo para o PDF. */
-        .printable-area {
-          box-shadow: none !important;
-          border: none !important;
-          width: 100%;
-          padding: 0; /* A margem da impressão é controlada pelo navegador */
-          margin: 0;
-        }
-      }
-    </style>
-  </head>
-  <body class="bg-gray-100">
+</head>
+<body class="bg-gray-100">
     <div id="root"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script type="module" src="/index.tsx"></script>
-  </body>
+</body>
 </html>

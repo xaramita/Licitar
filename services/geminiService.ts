@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { SummaryData, ChatMessage } from '../types';
 
@@ -59,24 +58,27 @@ const summarySchema: any = {
 
 export const summarizeDocument = async (fileContent: string, mimeType: string): Promise<SummaryData> => {
     try {
+        // Create a deep copy of the schema to modify it for the API call without affecting the original object.
+        const schemaForApi = JSON.parse(JSON.stringify(summarySchema));
+        // Remove the 'itensLicitados' property as per the new requirement.
+        delete schemaForApi.properties.itensLicitados;
+
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: [
-                {
-                    parts: [
-                        { text: "Você é um especialista em análise de editais de licitação. Sua tarefa é extrair informações chave do documento de edital fornecido e retorná-las no formato JSON, seguindo o schema. Se uma informação não for encontrada, retorne uma string vazia para o campo correspondente." },
-                        {
-                            inlineData: {
-                                data: fileContent,
-                                mimeType: mimeType
-                            }
+            contents: {
+                parts: [
+                    { text: "Você é um especialista em análise de editais de licitação. Sua tarefa é extrair as informações chave do documento fornecido, conforme o schema JSON. É crucial que você detalhe **todos os requisitos de habilitação** encontrados. **Não extraia a lista de itens individuais da licitação**. Se uma informação não for encontrada, retorne uma string vazia ou um array vazio para o campo correspondente." },
+                    {
+                        inlineData: {
+                            data: fileContent,
+                            mimeType: mimeType
                         }
-                    ]
-                }
-            ],
+                    }
+                ]
+            },
             config: {
                 responseMimeType: "application/json",
-                responseSchema: summarySchema,
+                responseSchema: schemaForApi,
             },
         });
         
@@ -107,17 +109,18 @@ export const askQuestion = async (fileContent: string, mimeType: string, questio
             history: historyParts
         });
 
-        const response = await chat.sendMessage({
-            message: `Contexto do edital fornecido como um anexo. Pergunta do usuário: "${question}"`,
-            parts: [
-                 {
-                    inlineData: {
-                        data: fileContent,
-                        mimeType: mimeType,
-                    },
+        // FIX: The `sendMessage` method takes a string or an array of `Part` objects.
+        // The original code was passing an object with `message` and `parts` properties, which is incorrect.
+        // This is the correct way to send a multipart message (text + file) in a chat.
+        const response = await chat.sendMessage([
+            { text: `Contexto do edital fornecido como um anexo. Pergunta do usuário: "${question}"` },
+            {
+                inlineData: {
+                    data: fileContent,
+                    mimeType: mimeType,
                 },
-            ]
-        });
+            },
+        ]);
 
         return response.text;
 
