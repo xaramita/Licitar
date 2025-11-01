@@ -9,6 +9,61 @@ interface ChatProps {
     disabled: boolean;
 }
 
+/**
+ * Parses a text and highlights parts that match a given highlight string.
+ * @param text The text to be rendered.
+ * @param highlight The string containing keywords to highlight (e.g., user's question).
+ * @returns A React.ReactNode with highlighted text.
+ */
+const getHighlightedText = (text: string, highlight: string): React.ReactNode => {
+    if (!highlight.trim()) {
+        return text;
+    }
+
+    // Common Portuguese stop words and question phrases to ignore for better matching.
+    const stopWords = new Set([
+        'a', 'o', 'e', 'é', 'de', 'do', 'da', 'em', 'um', 'uma', 'para', 'com', 'não',
+        'os', 'as', 'dos', 'das', 'ao', 'aos', 'pelo', 'pela', 'qual', 'quais', 'quem',
+        'onde', 'quando', 'como', 'por', 'que', 'se', 'me', 'fale', 'sobre', 'existe',
+        'há', 'são', 'informe', 'diga', 'resumo', 'explique'
+    ]);
+
+    const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Extract significant keywords from the user's question.
+    const keywords = highlight
+        .toLowerCase()
+        .split(/[\s,.;?]+/) // Split by various delimiters
+        .filter(word => word.length > 2 && !stopWords.has(word));
+
+    if (keywords.length === 0) {
+        return text;
+    }
+
+    // Create a regex to find all occurrences of the keywords, case-insensitive, as whole words.
+    const regex = new RegExp(`\\b(${keywords.map(escapeRegExp).join('|')})\\b`, 'gi');
+    
+    const parts = text.split(regex);
+    const matches = text.match(regex) || []; // Ensure matches is not null if no match is found.
+
+    // Interleave the non-matching parts with the highlighted matching parts.
+    return (
+        <span>
+            {parts.map((part, i) => (
+                <React.Fragment key={i}>
+                    {part}
+                    {i < matches.length && (
+                        <strong className="bg-blue-100 text-blue-800 font-semibold px-1 rounded-md">
+                            {matches[i]}
+                        </strong>
+                    )}
+                </React.Fragment>
+            ))}
+        </span>
+    );
+};
+
+
 const Chat: React.FC<ChatProps> = ({ messages, onSendMessage, isLoading, disabled }) => {
     const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -34,13 +89,28 @@ const Chat: React.FC<ChatProps> = ({ messages, onSendMessage, isLoading, disable
             </div>
             
             <div className="flex-1 p-4 overflow-y-auto space-y-4">
-                {messages.map((msg, index) => (
-                    <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl ${msg.sender === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-gray-200 text-gray-800 rounded-bl-none'}`}>
-                            <p className="whitespace-pre-wrap">{msg.text}</p>
+                {messages.map((msg, index) => {
+                    let lastUserQuestion = '';
+                    if (msg.sender === 'ai') {
+                         // Find the last user message before this AI message to use for highlighting.
+                        for (let i = index - 1; i >= 0; i--) {
+                            if (messages[i].sender === 'user') {
+                                lastUserQuestion = messages[i].text;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    return (
+                        <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl ${msg.sender === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-gray-200 text-gray-800 rounded-bl-none'}`}>
+                                <div className="whitespace-pre-wrap">
+                                    {msg.sender === 'ai' && lastUserQuestion ? getHighlightedText(msg.text, lastUserQuestion) : msg.text}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
                 {isLoading && (
                     <div className="flex justify-start">
                         <div className="bg-gray-200 text-gray-800 rounded-2xl rounded-bl-none px-4 py-3 inline-flex items-center">

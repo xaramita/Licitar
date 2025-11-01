@@ -109,18 +109,19 @@ export const askQuestion = async (fileContent: string, mimeType: string, questio
             history: historyParts
         });
 
-        // FIX: The `sendMessage` method takes a string or an array of `Part` objects.
-        // The original code was passing an object with `message` and `parts` properties, which is incorrect.
-        // This is the correct way to send a multipart message (text + file) in a chat.
-        const response = await chat.sendMessage([
-            { text: `Contexto do edital fornecido como um anexo. Pergunta do usuário: "${question}"` },
-            {
-                inlineData: {
-                    data: fileContent,
-                    mimeType: mimeType,
+        // The `sendMessage` method takes a `SendMessageRequest` object.
+        // The `message` property of this object can be a string or an array of `Part` objects for multipart content.
+        const response = await chat.sendMessage({
+            message: [
+                { text: `Contexto do edital fornecido como um anexo. Pergunta do usuário: "${question}"` },
+                {
+                    inlineData: {
+                        data: fileContent,
+                        mimeType: mimeType,
+                    },
                 },
-            },
-        ]);
+            ]
+        });
 
         return response.text;
 
