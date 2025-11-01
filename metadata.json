@@ -1,0 +1,5 @@
+{
+  "name": "Leitor de Editais IA",
+  "description": "An intelligent bidding document reader that allows users to upload a PDF, DOC, or DOCX file, receive an automated summary, and ask questions about the content using an AI.",
+  "requestFramePermissions": []
+}
