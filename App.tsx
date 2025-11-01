@@ -95,7 +95,7 @@ const App: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-100 text-gray-800 p-4 sm:p-6 lg:p-8">
             <div className="max-w-7xl mx-auto">
-                <header className="text-center mb-8">
+                <header className="text-center mb-8 no-print">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
                         Leitor Inteligente de Editais
                     </h1>
@@ -105,28 +105,30 @@ const App: React.FC = () => {
                 </header>
 
                 {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6 no-print" role="alert">
                         <strong className="font-bold">Erro: </strong>
                         <span className="block sm:inline">{error}</span>
                     </div>
                 )}
                 
-                <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start printable-container">
                     <div className="space-y-8">
-                        <FileUpload onFileSelect={handleFileSelect} disabled={isLoadingSummary} selectedFile={file} />
+                        <div className="no-print">
+                          <FileUpload onFileSelect={handleFileSelect} disabled={isLoadingSummary} selectedFile={file} />
+                        </div>
                         {isLoadingSummary && (
-                            <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center justify-center h-64">
+                            <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center justify-center h-64 no-print">
                                 <LoadingSpinner className="w-16 h-16 text-blue-500" />
                                 <p className="mt-4 text-lg text-gray-600 animate-pulse">Analisando o edital... Isso pode levar um momento.</p>
                             </div>
                         )}
                         {!isLoadingSummary && !summary && file && !error && (
-                             <div className="bg-white rounded-lg p-6 shadow-lg flex items-center justify-center h-64">
+                             <div className="bg-white rounded-lg p-6 shadow-lg flex items-center justify-center h-64 no-print">
                                 <p className="text-gray-500">Aguardando geração do resumo...</p>
                             </div>
                         )}
                         {!isLoadingSummary && !summary && !file && (
-                             <div className="bg-white rounded-lg p-6 shadow-lg text-gray-600 flex items-start space-x-3">
+                             <div className="bg-white rounded-lg p-6 shadow-lg text-gray-600 flex items-start space-x-3 no-print">
                                 <InfoIcon className="w-6 h-6 text-blue-500 flex-shrink-0 mt-1"/>
                                 <div>
                                     <h3 className="font-bold text-gray-900">Como funciona?</h3>
@@ -141,7 +143,7 @@ const App: React.FC = () => {
                         )}
                     </div>
                     
-                    <div className="lg:sticky lg:top-8">
+                    <div className="lg:sticky lg:top-8 no-print">
                        <Chat 
                          messages={chatHistory} 
                          onSendMessage={handleSendMessage} 

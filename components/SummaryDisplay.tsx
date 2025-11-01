@@ -1,5 +1,6 @@
 import React from 'react';
 import { SummaryData } from '../types';
+import { PrintIcon } from './icons';
 
 interface SummaryDisplayProps {
   summary: SummaryData;
@@ -20,8 +21,17 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({ summary }) => {
     if (!summary) return null;
 
     return (
-        <div className="w-full bg-white rounded-lg p-6 shadow-lg">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">📋 Resumo do Edital</h2>
+        <div className="w-full bg-white rounded-lg p-6 shadow-lg printable-area">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-900">📋 Resumo do Edital</h2>
+                <button
+                    onClick={() => window.print()}
+                    className="no-print flex items-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded-lg transition-colors duration-300"
+                >
+                    <PrintIcon className="w-5 h-5 mr-2" />
+                    Imprimir
+                </button>
+            </div>
             
             <div className="space-y-6">
                 <Section title="🏢 Dados do Órgão Licitante">
@@ -39,7 +49,7 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({ summary }) => {
                     <InfoItem label="Portal" value={summary.portal} />
                     <InfoItem label="Número do Processo" value={summary.numeroProcesso} />
                     <InfoItem label="Critério de Julgamento" value={summary.criterioJulgamento} />
-                </section>
+                </Section>
 
                 <Section title="🗓️ Datas Principais">
                     <InfoItem label="Abertura" value={summary.dataAbertura} />
